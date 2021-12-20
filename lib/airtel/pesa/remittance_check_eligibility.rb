@@ -8,33 +8,34 @@ require 'json'
 
 module Airtel
   module Pesa
-    class TransactionEnquiry
+    class RemittanceCheckEligibility
       STAGING_URL = "https://openapiuat.airtel.africa".freeze
       PRODUCTION_URL = "https://openapi.airtel.africa".freeze
 
-      attr_reader :transaction_id, :transaction_country_code, :transaction_currency_code
+      attr_reader :amount, :phone_number, :country, :currency_code
 
-      def self.call(transaction_id:, transaction_country_code:, transaction_currency_code:)
-        new(transaction_id, transaction_country_code, transaction_currency_code).call
-      end
-
-      def initialize(transaction_id, transaction_country_code, transaction_currency_code)
-        @transaction_id = transaction_id
-        @transaction_country_code = transaction_country_code
-        @transaction_currency_code = transaction_currency_code
+      def self.call(amount:, phone_number:, country:, currency_code:)
+        new(amount, phone_number, country, currency_code).call
       end
   
+      def initialize(amount, phone_number, country, currency_code)
+        @amount = amount
+        @phone_number = phone_number
+        @country = country
+        @currency_code = currency_code
+      end
+
       def call
-        url = URI("#{env_url}/standard/v1/payments/#{transaction_id}")
+        url = URI("#{env_url}/openapi/moneytransfer/v2/validate")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-        request = Net::HTTP::Get.new(url)
+        request = Net::HTTP::Post.new(url)
+        request["Content-Type"] = 'application/json'
         request["Authorization"] = "Bearer #{token}"
-        request["X-Country"] = transaction_country_code
-        request["X-Currency"] = transaction_currency_code
+        request.body = JSON.dump(body)
 
         response = http.request(request)
         parsed_response = JSON.parse(response.read_body)
@@ -53,6 +54,15 @@ module Airtel
 
       def token
         Airtel::Pesa::Authorization.call.result.access_token
+      end
+
+      def body
+        {
+          "amount": amount,
+          "country": country,
+          "currency": currency_code,
+          "msisdn": phone_number
+        }
       end
     end
   end

@@ -6,7 +6,7 @@ require 'base64'
 
 module Airtel
   module Pesa
-    class Encryption
+    class PinEncryption
       def initialize; end
 
       def self.call

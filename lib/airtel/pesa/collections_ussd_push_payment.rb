@@ -8,24 +8,41 @@ require 'json'
 
 module Airtel
   module Pesa
-    class RefundPayment
+    class CollectionsUssdPushPayment
       STAGING_URL = "https://openapiuat.airtel.africa".freeze
       PRODUCTION_URL = "https://openapi.airtel.africa".freeze
 
-      attr_reader :airtel_money_id, :transaction_country_code, :transaction_currency_code
+      attr_reader :amount, :phone_number, :country_code, :currency_code,
+                  :transaction_country_code, :transaction_currency_code, :unique_random_id
 
-      def self.call(airtel_money_id:, transaction_country_code:, transaction_currency_code:)
-        new(airtel_money_id, transaction_country_code, transaction_currency_code).call
+      def self.call(
+        amount:, phone_number:, country_code:, currency_code:,
+        transaction_country_code:, transaction_currency_code:,
+        unique_random_id:
+      )
+        new(
+          amount, phone_number, country_code, currency_code,
+          transaction_country_code, transaction_currency_code,
+          unique_random_id
+        ).call
       end
   
-      def initialize(airtel_money_id, transaction_country_code, transaction_currency_code)
-        @airtel_money_id = airtel_money_id
+      def initialize(
+        amount, phone_number, country_code, currency_code,
+        transaction_country_code, transaction_currency_code,
+        unique_random_id
+      )
+        @amount = amount
+        @phone_number = phone_number
+        @country_code = country_code
+        @currency_code = currency_code
         @transaction_country_code = transaction_country_code
         @transaction_currency_code = transaction_currency_code
+        @unique_random_id = unique_random_id
       end
-  
+
       def call
-        url = URI("#{env_url}/standard/v1/payments/refund")
+        url = URI("#{env_url}/merchant/v1/payments")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
@@ -59,8 +76,17 @@ module Airtel
 
       def body
         {
+          "reference": "airtel-pesa gem transaction",
+          "subscriber": {
+            "country": country_code,
+            "currency": currency_code,
+            "msisdn": phone_number
+          },
           "transaction": {
-            "airtel_money_id": airtel_money_id
+            "amount": amount,
+            "country": transaction_country_code,
+            "currency": transaction_currency_code,
+            "id": unique_random_id
           }
         }
       end

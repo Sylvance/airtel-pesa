@@ -8,24 +8,24 @@ require 'json'
 
 module Airtel
   module Pesa
-    class TransactionEnquiry
+    class CollectionsTransactionEnquiry
       STAGING_URL = "https://openapiuat.airtel.africa".freeze
       PRODUCTION_URL = "https://openapi.airtel.africa".freeze
 
-      attr_reader :phone_number, :transaction_country_code, :transaction_currency_code
+      attr_reader :transaction_id, :transaction_country_code, :transaction_currency_code
 
-      def self.call(phone_number:, transaction_country_code:, transaction_currency_code:)
-        new(phone_number, transaction_country_code, transaction_currency_code).call
+      def self.call(transaction_id:, transaction_country_code:, transaction_currency_code:)
+        new(transaction_id, transaction_country_code, transaction_currency_code).call
       end
 
-      def initialize(phone_number, transaction_country_code, transaction_currency_code)
-        @phone_number = phone_number
+      def initialize(transaction_id, transaction_country_code, transaction_currency_code)
+        @transaction_id = transaction_id
         @transaction_country_code = transaction_country_code
         @transaction_currency_code = transaction_currency_code
       end
   
       def call
-        url = URI("#{env_url}/standard/v1/users/#{phone_number}")
+        url = URI("#{env_url}/standard/v1/payments/#{transaction_id}")
 
         http = Net::HTTP.new(url.host, url.port)
         http.use_ssl = true
