@@ -80,7 +80,7 @@ module Airtel
             "msisdn": phone_number
           },
           "reference": reference,
-          "pin": pin || Airtel::Pesa::PinEncryption.call.result,
+          "pin": pin || Airtel::Pesa::EncryptionPin.call.result,
           "transaction": {
             "amount": amount,
             "id": unique_random_id

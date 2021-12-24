@@ -82,7 +82,7 @@ module Airtel
           "payerCountry": payer_country_code,
           "payerFirstName": payer_first_name,
           "payerLastName": payer_last_name,
-          "pin": pin || Airtel::Pesa::PinEncryption.call.result
+          "pin": pin || Airtel::Pesa::EncryptionPin.call.result
         }
       end
     end

@@ -59,7 +59,7 @@ module Airtel
         {
           "country": country,
           "txnID": transaction_id,
-          "pin": pin || Airtel::Pesa::PinEncryption.call.result
+          "pin": pin || Airtel::Pesa::EncryptionPin.call.result
         }
       end
     end

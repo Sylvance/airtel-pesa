@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
-require 'uri'
-require 'net/http'
-require 'openssl'
 require 'ostruct'
-require 'json'
 
 module Airtel
   module Pesa
